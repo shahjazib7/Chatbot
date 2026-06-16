@@ -3,171 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JKB Financial Services Helper</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #eef2f5; display: flex; justify-content: center; align-items: center; height: 100vh; padding: 20px; }
+    <title>JKB Financial Services Helper Bot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        /* Chat Box Structure (Responsive) */
-        .chat-container {
-            width: 100%;
-            max-width: 420px;
-            height: 650px;
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            position: relative;
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+        /* 2. Vibrant, modern background instead of flat grey */
+        body {
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            display: flex; justify-content: center; align-items: center; height: 100vh; padding: 20px;
         }
 
-        /* Minimized State Styles */
+        .chat-container {
+            width: 100%; max-width: 420px; height: 680px; background: #ffffff;
+            border-radius: 24px; /* Softer, rounder corners */
+            box-shadow: 0 20px 50px rgba(0, 10, 30, 0.15); /* Deeper, diffused shadow */
+            display: flex; flex-direction: column; overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative;
+        }
+
         .chat-container.minimized {
-            height: 60px;
-            max-width: 280px;
-            border-radius: 30px;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 51, 102, 0.3);
-            position: absolute;
-            bottom: 30px;
-            right: 30px;
+            height: 65px; max-width: 280px; border-radius: 35px; cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0, 82, 212, 0.3); position: absolute; bottom: 30px; right: 30px;
         }
         .chat-container.minimized .chat-messages,
         .chat-container.minimized .chat-input-area,
-        .chat-container.minimized .helper-text {
-            display: none !important;
-        }
+        .chat-container.minimized .top-bar { display: none !important; }
+
         .chat-container.minimized .chat-header {
-            padding: 18px;
-            font-size: 1rem;
-            border-radius: 30px;
+            padding: 20px; font-size: 1.05rem; border-radius: 35px;
+            background: linear-gradient(135deg, #0052D4, #4364F7); /* Vibrant minimized badge */
         }
 
-        /* Header */
+        .top-bar {
+            background-color: #f8fafc; display: flex; justify-content: center;
+            align-items: center; padding: 10px 20px; color: #64748b; font-size: 0.75rem;
+            font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        /* 3. Vibrant Header Gradient */
+        /* Updated Header for Flexbox alignment */
         .chat-header {
-            background-color: #003366;
-            color: #ffffff;
-            padding: 20px;
-            text-align: center;
-            font-size: 1.25rem;
-            font-weight: 600;
-            user-select: none;
+            background: linear-gradient(135deg, #0052D4, #4364F7);
+            color: #ffffff; padding: 18px 20px;
+            font-size: 1.2rem; font-weight: 600; user-select: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10;
+            display: flex; justify-content: center; align-items: center; gap: 12px;
         }
 
-        /* Messages Area */
+        /* New CSS rule specifically for the logo */
+        .header-logo {
+            height: 28px; /* Restricts the logo height */
+            width: auto;  /* Maintains the original aspect ratio */
+            border-radius: 4px; /* Optional: adds a tiny curve to the logo edges */
+        }
+
         .chat-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            background-color: #f8fafc;
+            flex: 1; padding: 25px 20px; overflow-y: auto; display: flex;
+            flex-direction: column; gap: 18px; background-color: #f4f7fb;
         }
 
-        /* Speech Bubbles */
+        /* 4. Message Entry Animations */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .message {
-            max-width: 85%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            font-size: 0.95rem;
-            line-height: 1.4;
-            word-wrap: break-word;
-        }
-        .message.bot {
-            background-color: #e2e8f0;
-            color: #1e293b;
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-        }
-        .message.user {
-            background-color: #00509e;
-            color: #ffffff;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
+            max-width: 85%; padding: 14px 18px; border-radius: 20px;
+            font-size: 0.95rem; line-height: 1.5; word-wrap: break-word;
+            animation: slideIn 0.3s ease forwards;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.03);
         }
 
-        /* Input Bar */
+        /* Modern Bot Bubble (White floating card) */
+        .message.bot {
+            background-color: #ffffff; color: #1e293b;
+            align-self: flex-start; border-bottom-left-radius: 4px;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Modern User Bubble (Vibrant Gradient) */
+        .message.user {
+            background: linear-gradient(135deg, #0052D4, #4364F7); color: #ffffff;
+            align-self: flex-end; border-bottom-right-radius: 4px;
+        }
+
+        .lead-form-card {
+            background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px;
+            padding: 20px; align-self: flex-start; width: 95%; margin-top: 5px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06); animation: slideIn 0.4s ease forwards;
+        }
+        .lead-form-card input {
+            width: 100%; padding: 12px; margin-bottom: 12px;
+            border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem;
+            transition: border-color 0.2s; outline: none;
+        }
+        .lead-form-card input:focus { border-color: #4364F7; }
+        .lead-form-card button {
+            width: 100%; padding: 12px; background: linear-gradient(135deg, #0052D4, #4364F7);
+            color: white; border: none; border-radius: 8px; font-weight: 600;
+            cursor: pointer; font-size: 1rem; transition: transform 0.1s, box-shadow 0.2s;
+        }
+        .lead-form-card button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(67, 100, 247, 0.3); }
+
         .chat-input-area {
-            display: flex;
-            padding: 15px;
-            background: #ffffff;
-            border-top: 1px solid #e2e8f0;
+            display: flex; padding: 18px 20px; background: #ffffff;
+            border-top: 1px solid #e2e8f0; align-items: center;
         }
         .chat-input-area input {
-            flex: 1;
-            padding: 12px 18px;
-            border: 1px solid #cbd5e1;
-            border-radius: 25px;
-            outline: none;
-            font-size: 0.95rem;
+            flex: 1; padding: 14px 20px; background-color: #f4f7fb; border: 1px solid transparent;
+            border-radius: 30px; outline: none; font-size: 0.95rem; transition: all 0.2s;
         }
-        .chat-input-area input:focus { border-color: #00509e; }
-        .chat-input-area button {
-            background-color: #00509e;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            margin-left: 10px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .chat-input-area button:hover { background-color: #003366; }
+        .chat-input-area input:focus { background-color: #ffffff; border-color: #4364F7; box-shadow: 0 0 0 3px rgba(67, 100, 247, 0.1); }
 
-        /* Helper Text */
-        .helper-text { text-align: center; font-size: 0.75rem; color: #64748b; padding-bottom: 12px; background: #ffffff; }
+        .send-btn {
+            background: linear-gradient(135deg, #0052D4, #4364F7); color: white; border: none;
+            border-radius: 50%; width: 48px; height: 48px; margin-left: 12px;
+            cursor: pointer; display: flex; justify-content: center; align-items: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .send-btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(67, 100, 247, 0.3); }
+
+        /* 5. Cleaned up SVG Icon for Send */
+        .send-icon { width: 20px; height: 20px; fill: white; transform: translateX(1px); }
+
+        .end-chat-btn {
+            background-color: transparent; color: #ef4444; border: 2px solid #fee2e2;
+            border-radius: 30px; height: 48px; padding: 0 18px; margin-left: 10px;
+            cursor: pointer; font-weight: 600; transition: all 0.2s;
+        }
+        .end-chat-btn:hover { background-color: #fef2f2; border-color: #ef4444; }
     </style>
 </head>
 <body>
 
 <div class="chat-container {% if minimized %}minimized{% endif %}" id="chatBox" onclick="checkMaximize()">
 
+    <div class="top-bar">
+        <span>🔒 End-to-End Encrypted</span>
+    </div>
+
     <div class="chat-header" id="chatHeader">
-                  JKB Financial Services Helper
+        {% if minimized %}
+            💬 Financial Services Helper
+        {% else %}
+            <img src="{{ url_for('static', filename='JKB.png') }}" alt="JKB Logo" class="header-logo">
+            JKB Financial Services
+        {% endif %}
     </div>
 
     <div class="chat-messages" id="message-container">
-        <div class="message bot">
-            Hello. How can I help you today?
-        </div>
+        <div class="message bot">Hello. How can I help you manage your finances today?</div>
 
         {% for msg in history %}
             <div class="message {{ msg.sender }}">
                 {{ msg.text | safe }}
             </div>
         {% endfor %}
+
+        {% if show_form %}
+            <div class="lead-form-card">
+                <form method="POST">
+                    <input type="hidden" name="customer_form" value="1">
+                    <input type="text" name="name" placeholder="Full Name" required>
+                    <input type="tel" name="phone" placeholder="Phone Number" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <button type="submit">Submit Secure Details</button>
+                </form>
+            </div>
+        {% endif %}
+
     </div>
 
     <form method="POST" class="chat-input-area" autocomplete="off">
-        <input type="text" name="question" placeholder="Ask anything..." required autofocus>
-        <button type="submit" aria-label="Send message">►</button>
-    </form>
+        <input type="text" name="question" placeholder="Type your message..." required autofocus>
 
-    <div class="helper-text">Type "chat is closed" or say "thanks" to exit.</div>
+        <button type="submit" class="send-btn" aria-label="Send message">
+            <svg class="send-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+        </button>
+
+        <button type="submit" name="end_chat" class="end-chat-btn" aria-label="End Chat" formnovalidate>End</button>
+    </form>
 </div>
 
 <script>
-    // Automatically scroll to the latest message
     var container = document.getElementById("message-container");
-    if (container) {
-        container.scrollTop = container.scrollHeight;
-    }
+    if (container) { container.scrollTop = container.scrollHeight; }
 
-    // Restore functionality if clicked while minimized
     function checkMaximize() {
         var chatBox = document.getElementById("chatBox");
         var header = document.getElementById("chatHeader");
         if (chatBox.classList.contains("minimized")) {
             chatBox.classList.remove("minimized");
-            // Restore your custom branding when opened
-            header.innerHTML = "JKB Financial Services Helper (RTR)";
-            // Clean up url/session state by refreshing fresh layout
+            header.innerHTML = "JKB Financial Services";
             window.location.href = "/";
         }
     }

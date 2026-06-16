@@ -5,20 +5,16 @@ import re
 from rapidfuzz import fuzz
 from dotenv import load_dotenv
 
-# Load the variables from the .env file
+##### NEW CODE IMPORT #####
+# Import the response generator function from your new file
+from GEMINI import generate_financial_response
+
+###########################
+
 load_dotenv()
-
 app = Flask(__name__)
-
-# Fetch the secret key from the environment
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
-def linkify(text):
-    # Regex to find standard URLs
-    url_pattern = re.compile(r'(https?://[^\s]+)')
-    # Replace the URL with an HTML anchor tag that opens in a new tab
-    # We also add an inline style so the link matches your JKB blue theme
-    return url_pattern.sub(r'<a href="\1" target="_blank" style="color: #003366; text-decoration: underline; font-weight: bold;">\1</a>', text)
 
 def normalize(text):
     text = text.lower()
@@ -27,15 +23,11 @@ def normalize(text):
     return text.strip()
 
 
-def is_closing_sentiment(text):
-    # Detect typical phrases that indicate a user wants to finish
-    closing_words = {"thanks", "thank you", "bye", "goodbye", "exit", "close", "chat is closed", "done"}
-    return any(word in text for word in closing_words)
-
-
-def is_affirmative(text):
-    # Detect confirmation to close
-    return text in {"yes", "yeah", "y", "close it", "end chat", "sure"}
+def linkify(text):
+    url_pattern = re.compile(r'(https?://[^\s]+)')
+    return url_pattern.sub(
+        r'<a href="\1" target="_blank" style="color: #003366; text-decoration: underline; font-weight: bold;">\1</a>',
+        text)
 
 
 def find_best_match(user_input, data):
@@ -54,60 +46,98 @@ def find_best_match(user_input, data):
 
     if best_score >= 60:
         return best_answer
-    return "I am sorry, I couldn't find an answer to that in my current records."
+    # We change this default return string to None so app.py knows nothing was found locally
+    return None
 
 
 @app.route("/", methods=["GET", "POST"])
 def home():
     if 'history' not in session:
         session['history'] = []
-    if 'awaiting_closure' not in session:
-        session['awaiting_closure'] = False
 
     minimized = False
+    show_form = False
 
     if request.method == "POST":
-        user_msg = request.form["question"]
+
+        # 1. Handle Explicit Button Shutdown
+        if "end_chat" in request.form:
+            session.clear()
+            return render_template("index.html", history=[], minimized=True)
+
+        # 2. Handle Lead Form Submission
+        if "customer_form" in request.form:
+            name = request.form.get("name")
+            phone = request.form.get("phone")
+            email = request.form.get("email")
+
+            db = mysql.connector.connect(
+                host=os.getenv("DB_HOST"), user=os.getenv("DB_USER"),
+                password=os.getenv("DB_PASSWORD"), database="chatbot"
+            )
+            cursor = db.cursor()
+            try:
+                cursor.execute("INSERT INTO leads (name, phone, email) VALUES (%s, %s, %s)", (name, phone, email))
+                db.commit()
+            finally:
+                cursor.close()
+                db.close()
+
+            bot_reply = f"Thank you, {name}. Your contact details have been saved. A representative will reach out shortly."
+            chat_history = session['history']
+            chat_history.append({"sender": "bot", "text": bot_reply})
+            session['history'] = chat_history
+
+            return render_template("index.html", history=session['history'], minimized=False)
+
+        ## 3. Standard Text Input Handling
+        user_msg = request.form.get("question", "")
         clean_msg = normalize(user_msg)
 
-        # 1. Handle explicit immediate shutdown
         if clean_msg == "chat is closed":
             session.clear()
             return render_template("index.html", history=[], minimized=True)
 
-        # 2. Handle confirmation tracking state
-        if session.get('awaiting_closure'):
-            if is_affirmative(clean_msg):
-                session.clear()
-                return render_template("index.html", history=[], minimized=True)
+        ##### UPDATED CODE: DETECT CONVERSATION END/THANK YOU #####
+        # Define a list of natural closing or gratitude phrases
+        closing_phrases = {
+            "thank you", "thanks", "thankyou", "bye", "goodbye",
+            "that is all", "thats all", "no more questions", "clear"
+        }
+
+        # Check if the user is asking for the form OR signaling the end of the chat
+        is_form_requested = "contact form" in clean_msg or "share details" in clean_msg or "call me" in clean_msg
+        is_closing_sentiment = any(phrase in clean_msg for phrase in closing_phrases)
+
+        if is_form_requested or is_closing_sentiment:
+            # Set a polite contextual response based on what they said
+            if is_closing_sentiment and not is_form_requested:
+                bot_reply = "You're welcome! If you have any further requirements or want our team to reach out, please fill out this quick contact form."
             else:
-                # User changed their mind
-                session['awaiting_closure'] = False
-                bot_reply = "Understood. Let's keep going. How else can I assist you today?"
+                bot_reply = "Please fill out the form below, and a banking representative will contact you."
 
-                chat_history = session['history']
-                chat_history.append({"sender": "user", "text": user_msg})
-                chat_history.append({"sender": "bot", "text": bot_reply})
-                session['history'] = chat_history
-                return render_template("index.html", history=session['history'], minimized=False)
-
-        # 3. Detect initial closing sentiment
-        if is_closing_sentiment(clean_msg):
-            session['awaiting_closure'] = True
-            bot_reply = "You're welcome! Would you like to securely end and close this chat session?"
-
+            show_form = True
             chat_history = session['history']
             chat_history.append({"sender": "user", "text": user_msg})
             chat_history.append({"sender": "bot", "text": bot_reply})
             session['history'] = chat_history
-            return render_template("index.html", history=session['history'], minimized=False)
+            return render_template("index.html", history=session['history'], minimized=False, show_form=show_form)
 
-        # 4. Standard Database Query logic
+
+        # Standard Query Logic (Context Bridge)
+        search_query = user_msg
+        words = clean_msg.split()
+        pronouns = {"it", "they", "them", "this", "that", "these", "those"}
+
+        if any(word in pronouns for word in words):
+            history_list = session.get('history', [])
+            if len(history_list) >= 2:
+                last_user_msg = history_list[-2]['text']
+                search_query = f"{last_user_msg} {user_msg}"
+
         db = mysql.connector.connect(
-            host=os.getenv("DB_HOST"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            database="chatbot"
+            host=os.getenv("DB_HOST"), user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"), database="chatbot"
         )
         cursor = db.cursor()
         try:
@@ -117,17 +147,34 @@ def home():
             cursor.close()
             db.close()
 
-            # ... (Inside your POST route) ...
+        ##### CHANGED CODE: INTELLIGENT RAG FALLBACK #####
+        # 1. Use your existing matching logic to search the database
+        db_match = find_best_match(search_query, data)
 
-            bot_reply = find_best_match(user_msg, data)
+        # 2. If the database found a document context, send it to Gemini
+        if db_match:
+            try:
+                # ADD session.get('history', [])
+                bot_reply = generate_financial_response(user_msg, db_match, session.get('history', []))
+            except Exception as e:
+                print(f"Gemini API Error: {e}")
+                bot_reply = "I'm having trouble processing that request right now. Please try again later."
+        else:
+            # If the database score was under 60, tell Gemini there is no context
+            try:
+                # ADD session.get('history', []) HERE
+                bot_reply = generate_financial_response(user_msg, retrieved_documents="",
+                                                        chat_history=session.get('history', []))
+            except Exception as e:
+                print(f"Gemini API Error: {e}")
+                bot_reply = "I'm sorry, I couldn't find an answer to that in my current records."
 
-            # FIX: Convert raw URLs in the reply into clickable HTML links
-            bot_reply = linkify(bot_reply)
+        bot_reply = linkify(bot_reply)
 
-            chat_history = session['history']
-            chat_history.append({"sender": "user", "text": user_msg})
-            chat_history.append({"sender": "bot", "text": bot_reply})
-            session['history'] = chat_history
+        chat_history = session['history']
+        chat_history.append({"sender": "user", "text": user_msg})
+        chat_history.append({"sender": "bot", "text": bot_reply})
+        session['history'] = chat_history
 
     return render_template("index.html", history=session.get('history', []), minimized=minimized)
 
