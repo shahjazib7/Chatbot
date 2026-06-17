@@ -122,7 +122,7 @@ def home():
             chat_history.append({"sender": "bot", "text": bot_reply})
             session['history'] = chat_history
             return render_template("index.html", history=session['history'], minimized=False, show_form=show_form)
-
+        ###########################################################
 
         # Standard Query Logic (Context Bridge)
         search_query = user_msg
@@ -153,12 +153,7 @@ def home():
 
         # 2. If the database found a document context, send it to Gemini
         if db_match:
-            try:
-                # ADD session.get('history', [])
-                bot_reply = generate_financial_response(user_msg, db_match, session.get('history', []))
-            except Exception as e:
-                print(f"Gemini API Error: {e}")
-                bot_reply = "I'm having trouble processing that request right now. Please try again later."
+            bot_reply = db_match
         else:
             # If the database score was under 60, tell Gemini there is no context
             try:
