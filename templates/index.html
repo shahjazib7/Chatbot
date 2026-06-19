@@ -9,23 +9,18 @@
     <style>
         /* === ELEGANT LIGHT GREY & GREEN THEME === */
         :root {
-            /* Soft light grey backgrounds */
             --page-bg-light: #f1f5f9;
             --page-bg-dark: #e2e8f0;
-
-            /* Chat Box */
             --chat-bg: #ffffff;
-            --chat-messages-bg: #f4f7f6; /* Light grey with a tiny hint of green */
-
-            /* Premium Green Palette (Wealth, Trust, Growth) */
-            --brand-primary: #059669;   /* Elegant Emerald Green */
-            --brand-secondary: #047857; /* Deep Forest Green */
-            --brand-accent: #10b981;    /* Vibrant Green for accents */
-
-            /* Text & Accents */
+            --chat-messages-bg: #f4f7f6;
+            --brand-primary: #059669;
+            --brand-secondary: #047857;
+            --brand-accent: #10b981;
             --text-main: #334155;
             --text-muted: #64748b;
             --border-light: rgba(0, 0, 0, 0.06);
+            --warn-primary: #d97706;
+            --warn-secondary: #b45309;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -36,13 +31,11 @@
             display: flex; justify-content: center; align-items: center; height: 100vh; padding: 20px;
         }
 
-        /* --- Elegant Auto-fading Scrollbar --- */
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* 1. Main Chat Container */
         .chat-container {
             width: 100%; max-width: 420px; height: 720px;
             background: var(--chat-bg);
@@ -68,7 +61,6 @@
             background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
         }
 
-        /* 2. Top Security Bar - Minimalist Grey */
         .top-bar {
             background-color: #ffffff;
             display: flex; justify-content: center;
@@ -78,7 +70,6 @@
             z-index: 20;
         }
 
-        /* 3. Header - Clean & Professional Green */
         .chat-header {
             background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
             color: #ffffff; padding: 22px 24px;
@@ -94,21 +85,18 @@
 
         .header-text { display: flex; flex-direction: column; align-items: flex-start; }
 
-        .header-title {
-            font-size: 1.15rem; font-weight: 600; color: #ffffff; letter-spacing: -0.2px;
-        }
+        .header-title { font-size: 1.15rem; font-weight: 600; color: #ffffff; letter-spacing: -0.2px; }
+        .header-subtitle { font-size: 0.75rem; color: #d1fae5; font-weight: 400; margin-top: 3px; }
 
-        .header-subtitle {
-            font-size: 0.75rem; color: #d1fae5; font-weight: 400; margin-top: 3px;
-        }
-
-        /* 4. Chat Messages Area */
         .chat-messages {
             flex: 1; padding: 25px; overflow-y: auto; display: flex;
             flex-direction: column; gap: 18px;
             background-color: var(--chat-messages-bg);
             scroll-behavior: smooth;
         }
+
+        /* Typing Indicator */
+        #typing-indicator { display: none; font-size: 0.8rem; color: var(--text-muted); font-style: italic; padding-left: 5px; }
 
         @keyframes messageFadeIn {
             0% { opacity: 0; transform: translateY(10px); }
@@ -135,11 +123,7 @@
             box-shadow: 0 4px 15px rgba(5, 150, 105, 0.15);
         }
 
-        /* 5. Suggestions (Subtle Outlines) */
-        .suggestions {
-            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;
-            animation: messageFadeIn 0.6s ease forwards;
-        }
+        .suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; animation: messageFadeIn 0.6s ease forwards; }
 
         .suggestions button {
             background: #ffffff; color: var(--brand-secondary);
@@ -155,76 +139,98 @@
             box-shadow: 0 4px 10px rgba(5, 150, 105, 0.15);
         }
 
-        /* 6. Secure Lead Form Card */
-        .lead-form-card {
+        .lead-form-card, .complaint-form-card {
             background: #ffffff; border: 1px solid var(--border-light); border-radius: 16px;
             padding: 24px; align-self: center; width: 100%; max-width: 360px; margin-top: 5px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.04); animation: messageFadeIn 0.5s ease forwards;
         }
 
-        .lead-form-card input {
+        .lead-form-card input, .complaint-form-card input, .complaint-form-card textarea {
             width: 100%; padding: 14px; margin-bottom: 14px;
             border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem;
             color: var(--text-main); background-color: #ffffff;
             transition: all 0.3s; outline: none;
         }
 
-        .lead-form-card input:focus {
-            border-color: var(--brand-accent);
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        .complaint-form-card textarea {
+            resize: vertical; min-height: 90px; font-family: 'Inter', sans-serif;
         }
 
-        .lead-form-card button {
+        .lead-form-card input:focus, .complaint-form-card input:focus, .complaint-form-card textarea:focus {
+            border-color: var(--brand-accent); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        .lead-form-card button, .complaint-form-card button[type="submit"] {
             width: 100%; padding: 14px;
             background: var(--brand-primary); color: white;
             border: none; border-radius: 10px; font-weight: 500; letter-spacing: 0.5px;
             cursor: pointer; font-size: 1rem; transition: all 0.3s;
         }
+        .lead-form-card button:hover, .complaint-form-card button[type="submit"]:hover { background: var(--brand-secondary); }
 
-        .lead-form-card button:hover { background: var(--brand-secondary); }
+        .complaint-form-card .complaint-card-header {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+        }
+        .complaint-form-card .complaint-card-header .icon {
+            font-size: 1.2rem;
+        }
+        .complaint-form-card .complaint-card-header h4 {
+            font-size: 1rem; font-weight: 600; color: var(--text-main);
+        }
+        .complaint-form-card .complaint-card-sub {
+            font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px; margin-top: -10px;
+        }
 
-        /* 7. Input Area - Seamless blend */
+        .complaint-cancel-btn {
+            width: 100%; padding: 12px; margin-top: 10px;
+            background: transparent; color: var(--text-muted);
+            border: 1px solid #e2e8f0; border-radius: 10px; font-weight: 500;
+            cursor: pointer; font-size: 0.9rem; transition: all 0.2s;
+        }
+        .complaint-cancel-btn:hover { background: var(--chat-messages-bg); color: var(--text-main); }
+
         .chat-input-area {
-            display: flex; padding: 16px 20px; background: #ffffff;
+            display: flex; padding: 16px 14px; background: #ffffff;
             border-top: 1px solid var(--border-light);
-            align-items: center; z-index: 20;
+            align-items: center; z-index: 20; gap: 0;
         }
 
         .chat-input-area input {
-            flex: 1; padding: 15px 20px; background-color: var(--chat-messages-bg);
+            flex: 1; min-width: 0; padding: 15px 16px; background-color: var(--chat-messages-bg);
             border: 1px solid transparent; border-radius: 30px;
-            outline: none; font-size: 0.95rem; color: var(--text-main); transition: all 0.3s;
+            outline: none; font-size: 0.9rem; color: var(--text-main); transition: all 0.3s;
         }
 
-        .chat-input-area input:focus {
-            background-color: #ffffff; border-color: var(--brand-accent);
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-        }
+        .chat-input-area input:focus { background-color: #ffffff; border-color: var(--brand-accent); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
 
         .send-btn {
             background: var(--brand-primary); color: white; border: none;
-            border-radius: 50%; width: 48px; height: 48px; margin-left: 12px;
+            border-radius: 50%; width: 44px; height: 44px; margin-left: 8px;
             cursor: pointer; display: flex; justify-content: center; align-items: center;
-            transition: all 0.2s;
+            transition: all 0.2s; flex-shrink: 0;
         }
-
         .send-btn:hover { background: var(--brand-secondary); transform: scale(1.05); }
         .send-icon { width: 18px; height: 18px; fill: white; transform: translateX(2px); }
 
+        .complaint-btn {
+            background-color: transparent; color: var(--warn-primary); border: none;
+            border-radius: 30px; height: 44px; padding: 0 10px; margin-left: 2px;
+            cursor: pointer; font-weight: 500; font-size: 0.8rem; transition: all 0.2s;
+            flex-shrink: 0; white-space: nowrap;
+        }
+        .complaint-btn:hover { color: var(--warn-secondary); background-color: #fff7ed; }
+
         .end-chat-btn {
             background-color: transparent; color: #94a3b8; border: none;
-            border-radius: 30px; height: 48px; padding: 0 16px; margin-left: 5px;
-            cursor: pointer; font-weight: 500; font-size: 0.85rem; transition: all 0.2s;
+            border-radius: 30px; height: 44px; padding: 0 10px; margin-left: 2px;
+            cursor: pointer; font-weight: 500; font-size: 0.8rem; transition: all 0.2s;
+            flex-shrink: 0;
         }
-
         .end-chat-btn:hover { color: #ef4444; background-color: #fef2f2; }
 
-        /* 8. Feedback Footer inside form */
         .footer-feedback {
             display: flex; justify-content: center; align-items: center; gap: 14px;
             padding-top: 20px; margin-top: 10px; border-top: 1px solid var(--border-light);
         }
-
         .footer-feedback span { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
         .footer-feedback button {
             border: none; background: transparent; cursor: pointer; font-size: 22px;
@@ -232,20 +238,12 @@
         }
         .footer-feedback button:hover { transform: scale(1.15); filter: grayscale(0%); opacity: 1; }
 
-        /* 9. STAJLOGICS Premium Footer Badge */
         .chat-footer {
-            background: #ffffff;
-            text-align: center;
-            padding: 10px 0 14px 0;
-            font-size: 0.6rem;
-            color: #cbd5e1;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            z-index: 20;
+            background: #ffffff; text-align: center; padding: 10px 0 14px 0;
+            font-size: 0.6rem; color: #cbd5e1; text-transform: uppercase;
+            letter-spacing: 1.5px; z-index: 20;
         }
-
         .chat-footer span { font-weight: 600; color: #94a3b8; }
-
     </style>
 </head>
 <body>
@@ -286,6 +284,8 @@
             </div>
         {% endfor %}
 
+        <div id="typing-indicator">JKB Helper is thinking...</div>
+
         {% if show_form %}
             <div class="lead-form-card">
                 <form method="POST">
@@ -295,7 +295,6 @@
                     <input type="email" name="email" placeholder="Email Address" required>
                     <button type="submit">Submit Secure Details</button>
                 </form>
-
                 <div class="footer-feedback">
                     <span>Is this helpful?</span>
                     <button type="button" onclick="submitFeedback('sad')" title="Not Helpful">☹️</button>
@@ -305,17 +304,31 @@
             </div>
         {% endif %}
 
+        <div class="complaint-form-card" id="complaintFormCard" style="{% if not show_complaint_form %}display:none;{% endif %}">
+            <div class="complaint-card-header">
+                <span class="icon">⚠️</span>
+                <h4>File a Complaint</h4>
+            </div>
+            <p class="complaint-card-sub">Tell us what went wrong and our team will get back to you.</p>
+            <form method="POST">
+                <input type="hidden" name="complaint_form" value="1">
+                <input type="text" name="complaint_name" placeholder="Full Name" required>
+                <input type="tel" name="complaint_phone" placeholder="Phone Number" required>
+                <textarea name="complaint_details" placeholder="Describe your issue..." required></textarea>
+                <button type="submit">Submit Complaint</button>
+            </form>
+            <button type="button" class="complaint-cancel-btn" onclick="toggleComplaintForm(false)">Cancel</button>
+        </div>
     </div>
 
-    <form method="POST" class="chat-input-area" autocomplete="off">
+    <form method="POST" class="chat-input-area" id="chatForm" autocomplete="off">
         <input type="text" name="question" placeholder="Type your message..." required autofocus>
-
         <button type="submit" class="send-btn" aria-label="Send message">
             <svg class="send-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
             </svg>
         </button>
-
+        <button type="button" class="complaint-btn" aria-label="File a complaint" title="File a Complaint" onclick="toggleComplaintForm(true)">Complaint</button>
         <button type="submit" name="end_chat" class="end-chat-btn" aria-label="End Chat" formnovalidate>End</button>
     </form>
 
@@ -326,15 +339,24 @@
 
 <script>
     var container = document.getElementById("message-container");
+    var form = document.getElementById("chatForm");
+    var indicator = document.getElementById("typing-indicator");
+    var complaintCard = document.getElementById("complaintFormCard");
+
+    // Scroll to bottom on load
     if (container) {
-        setTimeout(() => {
-            container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-        }, 100);
+        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
     }
+
+    // Show typing indicator on form submit (chat message form only)
+    form.addEventListener('submit', function() {
+        indicator.style.display = 'block';
+        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+    });
 
     function sendSuggestion(text) {
         document.querySelector('input[name="question"]').value = text;
-        document.querySelector('.chat-input-area').submit();
+        form.submit();
     }
 
     function submitFeedback(type) {
@@ -343,12 +365,16 @@
 
     function checkMaximize() {
         var chatBox = document.getElementById("chatBox");
-        var header = document.getElementById("chatHeader");
-
         if (chatBox.classList.contains("minimized")) {
             chatBox.classList.remove("minimized");
-            header.innerHTML = "JKB Financial Services";
-            window.location.href = "/";
+        }
+    }
+
+    function toggleComplaintForm(show) {
+        if (!complaintCard) return;
+        complaintCard.style.display = show ? "block" : "none";
+        if (show) {
+            container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
         }
     }
 </script>
