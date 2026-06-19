@@ -5,6 +5,9 @@ import re
 from rapidfuzz import fuzz
 from dotenv import load_dotenv
 
+# Import the error handling exception for Gemini's rate limits
+from google.api_core.exceptions import ResourceExhausted
+
 ##### NEW CODE IMPORT #####
 # Import the response generator function from your new file
 from GEMINI import generate_financial_response
@@ -90,6 +93,39 @@ def home():
 
             return render_template("index.html", history=session['history'], minimized=False)
 
+        ##### NEW CODE: COMPLAINT FORM SUBMISSION #####
+        # 2.5. Handle Complaint Form Submission
+        if "complaint_form" in request.form:
+            name = request.form.get("complaint_name")
+            phone = request.form.get("complaint_phone")
+            details = request.form.get("complaint_details")
+
+            db = mysql.connector.connect(
+                host=os.getenv("DB_HOST"), user=os.getenv("DB_USER"),
+                password=os.getenv("DB_PASSWORD"), database="chatbot"
+            )
+            cursor = db.cursor()
+            try:
+                cursor.execute(
+                    "INSERT INTO complaints (name, phone, details) VALUES (%s, %s, %s)",
+                    (name, phone, details)
+                )
+                db.commit()
+            finally:
+                cursor.close()
+                db.close()
+
+            bot_reply = (
+                f"Thank you, {name}. Your complaint has been registered. "
+                f"Our team will reach out to you shortly at {phone}."
+            )
+            chat_history = session['history']
+            chat_history.append({"sender": "bot", "text": bot_reply})
+            session['history'] = chat_history
+
+            return render_template("index.html", history=session['history'], minimized=False)
+        ################################################
+
         ## 3. Standard Text Input Handling
         user_msg = request.form.get("question", "")
         clean_msg = normalize(user_msg)
@@ -160,10 +196,29 @@ def home():
                 # ADD session.get('history', []) HERE
                 bot_reply = generate_financial_response(user_msg, retrieved_documents="",
                                                         chat_history=session.get('history', []))
-            except Exception as e:
-                print(f"Gemini API Error: {e}")
-                bot_reply = "I'm sorry, I couldn't find an answer to that in my current records."
 
+            except ResourceExhausted:
+                # CAUGHT THE RATE LIMIT ERROR!
+                print("Gemini API Error: Rate Limit Exceeded (429)")
+                bot_reply = "⚠️ **High Traffic Alert:** I am currently assisting many customers. Please wait about 30 seconds and try your message again."
+
+            except Exception as e:
+                # Catching any other issues
+                print(f"Gemini API Error: {e}")
+                bot_reply = "I'm sorry, I couldn't find an answer to that in my current records right now."
+
+        if len(bot_reply) > 150 and '\n' not in bot_reply:
+            sentences = bot_reply.split('. ')
+            formatted = []
+
+            for i, sentence in enumerate(sentences, 1):
+                sentence = sentence.strip()
+                if sentence:
+                    formatted.append(f"{i}. {sentence}")
+
+            bot_reply = "<br>".join(formatted)
+
+        # Make URLs clickable AFTER formatting
         bot_reply = linkify(bot_reply)
 
         chat_history = session['history']
@@ -172,6 +227,23 @@ def home():
         session['history'] = chat_history
 
     return render_template("index.html", history=session.get('history', []), minimized=minimized)
+
+
+@app.route("/admin/complaints", methods=["GET"])
+def admin_complaints():
+    db = mysql.connector.connect(
+        host=os.getenv("DB_HOST"), user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"), database="chatbot"
+    )
+    cursor = db.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT id, name, phone, details, status, created_at FROM complaints ORDER BY created_at DESC")
+        complaints = cursor.fetchall()
+    finally:
+        cursor.close()
+        db.close()
+
+    return render_template("admin_complaints.html", complaints=complaints)
 
 
 if __name__ == "__main__":

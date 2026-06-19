@@ -4,206 +4,247 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JKB Financial Services Helper Bot</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        /* === ELEGANT LIGHT GREY & GREEN THEME === */
+        :root {
+            /* Soft light grey backgrounds */
+            --page-bg-light: #f1f5f9;
+            --page-bg-dark: #e2e8f0;
+
+            /* Chat Box */
+            --chat-bg: #ffffff;
+            --chat-messages-bg: #f4f7f6; /* Light grey with a tiny hint of green */
+
+            /* Premium Green Palette (Wealth, Trust, Growth) */
+            --brand-primary: #059669;   /* Elegant Emerald Green */
+            --brand-secondary: #047857; /* Deep Forest Green */
+            --brand-accent: #10b981;    /* Vibrant Green for accents */
+
+            /* Text & Accents */
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --border-light: rgba(0, 0, 0, 0.06);
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 
-        /* 2. Vibrant, modern background instead of flat grey */
         body {
-            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            background-color: var(--page-bg-dark);
+            background-image: radial-gradient(circle at top right, var(--page-bg-light) 0%, var(--page-bg-dark) 100%);
             display: flex; justify-content: center; align-items: center; height: 100vh; padding: 20px;
         }
 
+        /* --- Elegant Auto-fading Scrollbar --- */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 1. Main Chat Container */
         .chat-container {
-            width: 100%; max-width: 420px; height: 680px; background: #ffffff;
-            border-radius: 24px; /* Softer, rounder corners */
-            box-shadow: 0 20px 50px rgba(0, 10, 30, 0.15); /* Deeper, diffused shadow */
+            width: 100%; max-width: 420px; height: 720px;
+            background: var(--chat-bg);
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: 0 20px 40px -10px rgba(4, 120, 87, 0.1), 0 0px 20px rgba(0,0,0,0.03);
             display: flex; flex-direction: column; overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative;
         }
 
         .chat-container.minimized {
-            height: 65px; max-width: 280px; border-radius: 35px; cursor: pointer;
-            box-shadow: 0 10px 25px rgba(0, 82, 212, 0.3); position: absolute; bottom: 30px; right: 30px;
+            height: 70px; max-width: 320px; border-radius: 35px; cursor: pointer;
+            box-shadow: 0 15px 35px rgba(4, 120, 87, 0.15); position: absolute; bottom: 40px; right: 40px;
         }
+
         .chat-container.minimized .chat-messages,
         .chat-container.minimized .chat-input-area,
-        .chat-container.minimized .top-bar { display: none !important; }
+        .chat-container.minimized .top-bar,
+        .chat-container.minimized .chat-footer { display: none !important; }
 
         .chat-container.minimized .chat-header {
-            padding: 20px; font-size: 1.05rem; border-radius: 35px;
-            background: linear-gradient(135deg, #0052D4, #4364F7); /* Vibrant minimized badge */
+            padding: 0 24px; height: 100%; border-radius: 35px;
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
         }
 
+        /* 2. Top Security Bar - Minimalist Grey */
         .top-bar {
-            background-color: #f8fafc; display: flex; justify-content: center;
-            align-items: center; padding: 10px 20px; color: #64748b; font-size: 0.75rem;
-            font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
-            border-bottom: 1px solid #e2e8f0;
+            background-color: #ffffff;
+            display: flex; justify-content: center;
+            align-items: center; padding: 10px 20px; color: #94a3b8; font-size: 0.65rem;
+            font-weight: 500; letter-spacing: 1px; text-transform: uppercase;
+            border-bottom: 1px solid var(--border-light);
+            z-index: 20;
         }
 
-        /* 3. Vibrant Header Gradient */
-        /* Updated Header for Flexbox alignment */
+        /* 3. Header - Clean & Professional Green */
         .chat-header {
-            background: linear-gradient(135deg, #0052D4, #4364F7);
-            color: #ffffff; padding: 18px 20px;
-            font-size: 1.2rem; font-weight: 600; user-select: none;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10;
-            display: flex; justify-content: center; align-items: center; gap: 12px;
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+            color: #ffffff; padding: 22px 24px;
+            user-select: none; z-index: 10;
+            display: flex; align-items: center; gap: 16px;
         }
 
-        /* New CSS rule specifically for the logo */
         .header-logo {
-            height: 28px; /* Restricts the logo height */
-            width: auto;  /* Maintains the original aspect ratio */
-            border-radius: 4px; /* Optional: adds a tiny curve to the logo edges */
+            height: 38px; width: auto; border-radius: 8px;
+            background: #ffffff; padding: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
+        .header-text { display: flex; flex-direction: column; align-items: flex-start; }
+
+        .header-title {
+            font-size: 1.15rem; font-weight: 600; color: #ffffff; letter-spacing: -0.2px;
+        }
+
+        .header-subtitle {
+            font-size: 0.75rem; color: #d1fae5; font-weight: 400; margin-top: 3px;
+        }
+
+        /* 4. Chat Messages Area */
         .chat-messages {
-            flex: 1; padding: 25px 20px; overflow-y: auto; display: flex;
-            flex-direction: column; gap: 18px; background-color: #f4f7fb;
+            flex: 1; padding: 25px; overflow-y: auto; display: flex;
+            flex-direction: column; gap: 18px;
+            background-color: var(--chat-messages-bg);
+            scroll-behavior: smooth;
         }
 
-        /* 4. Message Entry Animations */
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes messageFadeIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
 
         .message {
-            max-width: 85%; padding: 14px 18px; border-radius: 20px;
-            font-size: 0.95rem; line-height: 1.5; word-wrap: break-word;
-            animation: slideIn 0.3s ease forwards;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+            max-width: 82%; padding: 16px 20px; border-radius: 18px;
+            font-size: 0.95rem; line-height: 1.6; word-wrap: break-word;
+            animation: messageFadeIn 0.5s ease forwards;
         }
 
-        /* Modern Bot Bubble (White floating card) */
         .message.bot {
-            background-color: #ffffff; color: #1e293b;
+            background-color: #ffffff; color: var(--text-main);
             align-self: flex-start; border-bottom-left-radius: 4px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid rgba(0,0,0,0.03);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
 
-        /* Modern User Bubble (Vibrant Gradient) */
         .message.user {
-            background: linear-gradient(135deg, #0052D4, #4364F7); color: #ffffff;
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+            color: #ffffff;
             align-self: flex-end; border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.15);
         }
 
+        /* 5. Suggestions (Subtle Outlines) */
+        .suggestions {
+            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;
+            animation: messageFadeIn 0.6s ease forwards;
+        }
+
+        .suggestions button {
+            background: #ffffff; color: var(--brand-secondary);
+            border: 1px solid #d1fae5; border-radius: 30px;
+            padding: 10px 16px; font-size: 0.85rem; font-weight: 500;
+            cursor: pointer; transition: all 0.2s ease;
+        }
+
+        .suggestions button:hover {
+            border-color: var(--brand-primary); color: #ffffff;
+            background: var(--brand-primary);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(5, 150, 105, 0.15);
+        }
+
+        /* 6. Secure Lead Form Card */
         .lead-form-card {
-            background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px;
-            padding: 20px; align-self: flex-start; width: 95%; margin-top: 5px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.06); animation: slideIn 0.4s ease forwards;
+            background: #ffffff; border: 1px solid var(--border-light); border-radius: 16px;
+            padding: 24px; align-self: center; width: 100%; max-width: 360px; margin-top: 5px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.04); animation: messageFadeIn 0.5s ease forwards;
         }
-        .lead-form-card input {
-            width: 100%; padding: 12px; margin-bottom: 12px;
-            border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem;
-            transition: border-color 0.2s; outline: none;
-        }
-        .lead-form-card input:focus { border-color: #4364F7; }
-        .lead-form-card button {
-            width: 100%; padding: 12px; background: linear-gradient(135deg, #0052D4, #4364F7);
-            color: white; border: none; border-radius: 8px; font-weight: 600;
-            cursor: pointer; font-size: 1rem; transition: transform 0.1s, box-shadow 0.2s;
-        }
-        .lead-form-card button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(67, 100, 247, 0.3); }
 
+        .lead-form-card input {
+            width: 100%; padding: 14px; margin-bottom: 14px;
+            border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem;
+            color: var(--text-main); background-color: #ffffff;
+            transition: all 0.3s; outline: none;
+        }
+
+        .lead-form-card input:focus {
+            border-color: var(--brand-accent);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .lead-form-card button {
+            width: 100%; padding: 14px;
+            background: var(--brand-primary); color: white;
+            border: none; border-radius: 10px; font-weight: 500; letter-spacing: 0.5px;
+            cursor: pointer; font-size: 1rem; transition: all 0.3s;
+        }
+
+        .lead-form-card button:hover { background: var(--brand-secondary); }
+
+        /* 7. Input Area - Seamless blend */
         .chat-input-area {
-            display: flex; padding: 18px 20px; background: #ffffff;
-            border-top: 1px solid #e2e8f0; align-items: center;
+            display: flex; padding: 16px 20px; background: #ffffff;
+            border-top: 1px solid var(--border-light);
+            align-items: center; z-index: 20;
         }
+
         .chat-input-area input {
-            flex: 1; padding: 14px 20px; background-color: #f4f7fb; border: 1px solid transparent;
-            border-radius: 30px; outline: none; font-size: 0.95rem; transition: all 0.2s;
+            flex: 1; padding: 15px 20px; background-color: var(--chat-messages-bg);
+            border: 1px solid transparent; border-radius: 30px;
+            outline: none; font-size: 0.95rem; color: var(--text-main); transition: all 0.3s;
         }
-        .chat-input-area input:focus { background-color: #ffffff; border-color: #4364F7; box-shadow: 0 0 0 3px rgba(67, 100, 247, 0.1); }
+
+        .chat-input-area input:focus {
+            background-color: #ffffff; border-color: var(--brand-accent);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
 
         .send-btn {
-            background: linear-gradient(135deg, #0052D4, #4364F7); color: white; border: none;
+            background: var(--brand-primary); color: white; border: none;
             border-radius: 50%; width: 48px; height: 48px; margin-left: 12px;
             cursor: pointer; display: flex; justify-content: center; align-items: center;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.2s;
         }
-        .send-btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(67, 100, 247, 0.3); }
 
-        /* 5. Cleaned up SVG Icon for Send */
-        .send-icon { width: 20px; height: 20px; fill: white; transform: translateX(1px); }
+        .send-btn:hover { background: var(--brand-secondary); transform: scale(1.05); }
+        .send-icon { width: 18px; height: 18px; fill: white; transform: translateX(2px); }
 
         .end-chat-btn {
-            background-color: transparent; color: #ef4444; border: 2px solid #fee2e2;
-            border-radius: 30px; height: 48px; padding: 0 18px; margin-left: 10px;
-            cursor: pointer; font-weight: 600; transition: all 0.2s;
+            background-color: transparent; color: #94a3b8; border: none;
+            border-radius: 30px; height: 48px; padding: 0 16px; margin-left: 5px;
+            cursor: pointer; font-weight: 500; font-size: 0.85rem; transition: all 0.2s;
         }
-        .end-chat-btn:hover { background-color: #fef2f2; border-color: #ef4444; }
 
-        .header-text {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
+        .end-chat-btn:hover { color: #ef4444; background-color: #fef2f2; }
 
-.header-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: white;
-    line-height: 1.1;
-}
+        /* 8. Feedback Footer inside form */
+        .footer-feedback {
+            display: flex; justify-content: center; align-items: center; gap: 14px;
+            padding-top: 20px; margin-top: 10px; border-top: 1px solid var(--border-light);
+        }
 
-.header-powered {
-    font-size: 0.65rem;
-    color: rgba(255,255,255,0.8);
-    font-weight: 400;
-    margin-top: 2px;
-    letter-spacing: 0.5px;
-}
+        .footer-feedback span { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+        .footer-feedback button {
+            border: none; background: transparent; cursor: pointer; font-size: 22px;
+            transition: all 0.2s ease; filter: grayscale(100%); opacity: 0.6;
+        }
+        .footer-feedback button:hover { transform: scale(1.15); filter: grayscale(0%); opacity: 1; }
 
-.suggestions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 5px;
-    margin-bottom: 15px;
-}
+        /* 9. STAJLOGICS Premium Footer Badge */
+        .chat-footer {
+            background: #ffffff;
+            text-align: center;
+            padding: 10px 0 14px 0;
+            font-size: 0.6rem;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            z-index: 20;
+        }
 
-.suggestions button {
-    background: #ffffff;
-    color: #0052D4;
-    border: 1px solid #dbeafe;
-    border-radius: 20px;
-    padding: 10px 14px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.suggestions button:hover {
-    background: #0052D4;
-    color: white;
-}
-
-.feedback-bar {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 8px;
-    margin-top: -8px;
-    margin-bottom: 10px;
-    font-size: 12px;
-    color: #64748b;
-}
-
-.feedback-bar button {
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-size: 20px;
-}
-
-.feedback-bar button:hover {
-    transform: scale(1.2);
-}
-
+        .chat-footer span { font-weight: 600; color: #94a3b8; }
 
     </style>
 </head>
@@ -215,46 +256,35 @@
         <span>🔒 End-to-End Encrypted</span>
     </div>
 
- <div class="chat-header" id="chatHeader">
-    {% if minimized %}
-        💬 Financial Services Helper
-    {% else %}
-        <img src="{{ url_for('static', filename='JKB.png') }}" alt="JKB Logo" class="header-logo">
-
-        <div class="header-text">
-            <div class="header-title">JKB Financial Services</div>
-            <div class="header-powered">Powered by STAJLOGICS</div>
-        </div>
-    {% endif %}
-</div>
+    <div class="chat-header" id="chatHeader">
+        {% if minimized %}
+            💬 Financial Services Helper
+        {% else %}
+            <img src="{{ url_for('static', filename='JKB.png') }}" alt="JKB Logo" class="header-logo">
+            <div class="header-text">
+                <div class="header-title">JKB Financial Services</div>
+                <div class="header-subtitle">Official Virtual Assistant</div>
+            </div>
+        {% endif %}
+    </div>
 
     <div class="chat-messages" id="message-container">
         <div class="message bot">Hello. How can I help you manage your finances today?</div>
-         <div class="suggestions">
-        <button type="button" onclick="sendSuggestion('What is a Demat account?')">📈 Demat Account</button>
-        <button type="button" onclick="sendSuggestion('How can I open a Demat account?')">🏦 Open Demat</button>
-        <button type="button" onclick="sendSuggestion('What is IPO?')">🚀 IPO</button>
-        <button type="button" onclick="sendSuggestion('What is a Mutual Fund?')">💰 Mutual Fund</button>
-        <button type="button" onclick="sendSuggestion('Contact Information')">📞 Contact</button>
-        <button type="button" onclick="sendSuggestion('What services does JKBFSL offer?')">⭐ Services</button>
-    </div>
 
-       {% for msg in history %}
-    <div class="message {{ msg.sender }}">
-        {{ msg.text | safe }}
-    </div>
+        <div class="suggestions">
+            <button type="button" onclick="sendSuggestion('What is a Demat account?')">📈 Demat Account</button>
+            <button type="button" onclick="sendSuggestion('How can I open a Demat account?')">🏦 Open Demat</button>
+            <button type="button" onclick="sendSuggestion('What is IPO?')">🚀 IPO</button>
+            <button type="button" onclick="sendSuggestion('What is a Mutual Fund?')">💰 Mutual Fund</button>
+            <button type="button" onclick="sendSuggestion('Contact Information')">📞 Contact</button>
+            <button type="button" onclick="sendSuggestion('What services does JKBFSL offer?')">⭐ Services</button>
+        </div>
 
-    {% if msg.sender == 'bot' %}
-    <div class="feedback-bar">
-        <span>Helpful?</span>
-
-        <button onclick="submitFeedback('sad')">☹️</button>
-        <button onclick="submitFeedback('neutral')">😐</button>
-        <button onclick="submitFeedback('happy')">🙂</button>
-    </div>
-    {% endif %}
-
-{% endfor %}
+        {% for msg in history %}
+            <div class="message {{ msg.sender }}">
+                {{ msg.text | safe }}
+            </div>
+        {% endfor %}
 
         {% if show_form %}
             <div class="lead-form-card">
@@ -265,6 +295,13 @@
                     <input type="email" name="email" placeholder="Email Address" required>
                     <button type="submit">Submit Secure Details</button>
                 </form>
+
+                <div class="footer-feedback">
+                    <span>Is this helpful?</span>
+                    <button type="button" onclick="submitFeedback('sad')" title="Not Helpful">☹️</button>
+                    <button type="button" onclick="submitFeedback('neutral')" title="Okay">😐</button>
+                    <button type="button" onclick="submitFeedback('happy')" title="Helpful">🙂</button>
+                </div>
             </div>
         {% endif %}
 
@@ -281,12 +318,18 @@
 
         <button type="submit" name="end_chat" class="end-chat-btn" aria-label="End Chat" formnovalidate>End</button>
     </form>
+
+    <div class="chat-footer">
+        Powered by <span>STAJLOGICS</span>
+    </div>
 </div>
 
 <script>
     var container = document.getElementById("message-container");
     if (container) {
-        container.scrollTop = container.scrollHeight;
+        setTimeout(() => {
+            container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+        }, 100);
     }
 
     function sendSuggestion(text) {
@@ -295,8 +338,9 @@
     }
 
     function submitFeedback(type) {
-    alert("Thank you for your feedback!");
-}
+        alert("Thank you for your feedback!");
+    }
+
     function checkMaximize() {
         var chatBox = document.getElementById("chatBox");
         var header = document.getElementById("chatHeader");
