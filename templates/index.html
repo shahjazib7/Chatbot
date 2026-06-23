@@ -19,8 +19,8 @@
             --text-main: #334155;
             --text-muted: #64748b;
             --border-light: rgba(0, 0, 0, 0.06);
-            --warn-primary: #d97706;
-            --warn-secondary: #b45309;
+            --warn-primary: #059669; /* Updated to match primary green for a professional look */
+            --warn-secondary: #047857;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -95,7 +95,6 @@
             scroll-behavior: smooth;
         }
 
-        /* Typing Indicator */
         #typing-indicator { display: none; font-size: 0.8rem; color: var(--text-muted); font-style: italic; padding-left: 5px; }
 
         @keyframes messageFadeIn {
@@ -139,54 +138,54 @@
             box-shadow: 0 4px 10px rgba(5, 150, 105, 0.15);
         }
 
-        .lead-form-card, .complaint-form-card {
+        .lead-form-card, .support-form-card {
             background: #ffffff; border: 1px solid var(--border-light); border-radius: 16px;
             padding: 24px; align-self: center; width: 100%; max-width: 360px; margin-top: 5px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.04); animation: messageFadeIn 0.5s ease forwards;
         }
 
-        .lead-form-card input, .complaint-form-card input, .complaint-form-card textarea {
+        .lead-form-card input, .support-form-card input, .support-form-card textarea {
             width: 100%; padding: 14px; margin-bottom: 14px;
             border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem;
             color: var(--text-main); background-color: #ffffff;
             transition: all 0.3s; outline: none;
         }
 
-        .complaint-form-card textarea {
+        .support-form-card textarea {
             resize: vertical; min-height: 90px; font-family: 'Inter', sans-serif;
         }
 
-        .lead-form-card input:focus, .complaint-form-card input:focus, .complaint-form-card textarea:focus {
+        .lead-form-card input:focus, .support-form-card input:focus, .support-form-card textarea:focus {
             border-color: var(--brand-accent); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
         }
-        .lead-form-card button, .complaint-form-card button[type="submit"] {
+        .lead-form-card button, .support-form-card button[type="submit"] {
             width: 100%; padding: 14px;
             background: var(--brand-primary); color: white;
             border: none; border-radius: 10px; font-weight: 500; letter-spacing: 0.5px;
             cursor: pointer; font-size: 1rem; transition: all 0.3s;
         }
-        .lead-form-card button:hover, .complaint-form-card button[type="submit"]:hover { background: var(--brand-secondary); }
+        .lead-form-card button:hover, .support-form-card button[type="submit"]:hover { background: var(--brand-secondary); }
 
-        .complaint-form-card .complaint-card-header {
+        .support-form-card .support-card-header {
             display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
         }
-        .complaint-form-card .complaint-card-header .icon {
+        .support-form-card .support-card-header .icon {
             font-size: 1.2rem;
         }
-        .complaint-form-card .complaint-card-header h4 {
+        .support-form-card .support-card-header h4 {
             font-size: 1rem; font-weight: 600; color: var(--text-main);
         }
-        .complaint-form-card .complaint-card-sub {
+        .support-form-card .support-card-sub {
             font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px; margin-top: -10px;
         }
 
-        .complaint-cancel-btn {
+        .support-cancel-btn {
             width: 100%; padding: 12px; margin-top: 10px;
             background: transparent; color: var(--text-muted);
             border: 1px solid #e2e8f0; border-radius: 10px; font-weight: 500;
             cursor: pointer; font-size: 0.9rem; transition: all 0.2s;
         }
-        .complaint-cancel-btn:hover { background: var(--chat-messages-bg); color: var(--text-main); }
+        .support-cancel-btn:hover { background: var(--chat-messages-bg); color: var(--text-main); }
 
         .chat-input-area {
             display: flex; padding: 16px 14px; background: #ffffff;
@@ -211,13 +210,13 @@
         .send-btn:hover { background: var(--brand-secondary); transform: scale(1.05); }
         .send-icon { width: 18px; height: 18px; fill: white; transform: translateX(2px); }
 
-        .complaint-btn {
-            background-color: transparent; color: var(--warn-primary); border: none;
+        .support-btn {
+            background-color: transparent; color: var(--brand-primary); border: none;
             border-radius: 30px; height: 44px; padding: 0 10px; margin-left: 2px;
             cursor: pointer; font-weight: 500; font-size: 0.8rem; transition: all 0.2s;
             flex-shrink: 0; white-space: nowrap;
         }
-        .complaint-btn:hover { color: var(--warn-secondary); background-color: #fff7ed; }
+        .support-btn:hover { color: var(--brand-secondary); background-color: #f0fdf4; }
 
         .end-chat-btn {
             background-color: transparent; color: #94a3b8; border: none;
@@ -304,20 +303,20 @@
             </div>
         {% endif %}
 
-        <div class="complaint-form-card" id="complaintFormCard" style="{% if not show_complaint_form %}display:none;{% endif %}">
-            <div class="complaint-card-header">
-                <span class="icon">⚠️</span>
-                <h4>File a Complaint</h4>
+        <div class="support-form-card" id="supportFormCard" style="{% if not show_support_form %}display:none;{% endif %}">
+            <div class="support-card-header">
+                <span class="icon">💬</span>
+                <h4>Support Request</h4>
             </div>
-            <p class="complaint-card-sub">Tell us what went wrong and our team will get back to you.</p>
+            <p class="support-card-sub">Tell us how we can assist you, and our team will get back to you.</p>
             <form method="POST">
                 <input type="hidden" name="complaint_form" value="1">
                 <input type="text" name="complaint_name" placeholder="Full Name" required>
                 <input type="tel" name="complaint_phone" placeholder="Phone Number" required>
-                <textarea name="complaint_details" placeholder="Describe your issue..." required></textarea>
-                <button type="submit">Submit Complaint</button>
+                <textarea name="complaint_details" placeholder="Describe your request..." required></textarea>
+                <button type="submit">Submit Request</button>
             </form>
-            <button type="button" class="complaint-cancel-btn" onclick="toggleComplaintForm(false)">Cancel</button>
+            <button type="button" class="support-cancel-btn" onclick="toggleSupportForm(false)">Cancel</button>
         </div>
     </div>
 
@@ -328,7 +327,7 @@
                 <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
             </svg>
         </button>
-        <button type="button" class="complaint-btn" aria-label="File a complaint" title="File a Complaint" onclick="toggleComplaintForm(true)">Complaint</button>
+        <button type="button" class="support-btn" aria-label="Support request" title="Support" onclick="toggleSupportForm(true)">Support</button>
         <button type="submit" name="end_chat" class="end-chat-btn" aria-label="End Chat" formnovalidate>End</button>
     </form>
 
@@ -341,14 +340,14 @@
     var container = document.getElementById("message-container");
     var form = document.getElementById("chatForm");
     var indicator = document.getElementById("typing-indicator");
-    var complaintCard = document.getElementById("complaintFormCard");
+    var supportCard = document.getElementById("supportFormCard");
 
     // Scroll to bottom on load
     if (container) {
         container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
     }
 
-    // Show typing indicator on form submit (chat message form only)
+    // Show typing indicator on form submit
     form.addEventListener('submit', function() {
         indicator.style.display = 'block';
         container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
@@ -370,9 +369,9 @@
         }
     }
 
-    function toggleComplaintForm(show) {
-        if (!complaintCard) return;
-        complaintCard.style.display = show ? "block" : "none";
+    function toggleSupportForm(show) {
+        if (!supportCard) return;
+        supportCard.style.display = show ? "block" : "none";
         if (show) {
             container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
         }
