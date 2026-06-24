@@ -4,23 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JKB Financial Services Helper Bot</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
 
     <style>
-        /* === ELEGANT LIGHT GREY & GREEN THEME === */
+        /* === ELEGANT GREEN & WARM GOLD THEME === */
         :root {
             --page-bg-light: #f1f5f9;
             --page-bg-dark: #e2e8f0;
             --chat-bg: #ffffff;
-            --chat-messages-bg: #f4f7f6;
+            --chat-messages-bg: #f6f8f7;
             --brand-primary: #059669;
             --brand-secondary: #047857;
             --brand-accent: #10b981;
-            --text-main: #334155;
-            --text-muted: #64748b;
-            --border-light: rgba(0, 0, 0, 0.06);
-            --warn-primary: #059669; /* Updated to match primary green for a professional look */
-            --warn-secondary: #047857;
+            --gold: #a87c1f;
+            --gold-light: #c89a3e;
+            --gold-bg: #fbf6e9;
+            --gold-border: #ecdba8;
+            --text-main: #2c3540;
+            --text-muted: #69788a;
+            --border-light: rgba(15, 23, 42, 0.06);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -41,7 +43,7 @@
             background: var(--chat-bg);
             border-radius: 24px;
             border: 1px solid rgba(255,255,255,0.8);
-            box-shadow: 0 20px 40px -10px rgba(4, 120, 87, 0.1), 0 0px 20px rgba(0,0,0,0.03);
+            box-shadow: 0 24px 50px -12px rgba(4, 120, 87, 0.14), 0 2px 12px rgba(15, 23, 42, 0.04);
             display: flex; flex-direction: column; overflow: hidden;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative;
         }
@@ -59,22 +61,28 @@
         .chat-container.minimized .chat-header {
             padding: 0 24px; height: 100%; border-radius: 35px;
             background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+            border-bottom: none;
         }
 
         .top-bar {
             background-color: #ffffff;
-            display: flex; justify-content: center;
-            align-items: center; padding: 10px 20px; color: #94a3b8; font-size: 0.65rem;
-            font-weight: 500; letter-spacing: 1px; text-transform: uppercase;
+            display: flex; justify-content: center; align-items: center; gap: 7px;
+            padding: 9px 20px; color: #8a96a3; font-size: 0.62rem;
+            font-weight: 500; letter-spacing: 1.3px; text-transform: uppercase;
             border-bottom: 1px solid var(--border-light);
             z-index: 20;
+        }
+        .top-bar .lock-dot {
+            width: 4px; height: 4px; border-radius: 50%; background: var(--gold-light);
         }
 
         .chat-header {
             background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
-            color: #ffffff; padding: 22px 24px;
+            color: #ffffff; padding: 21px 24px;
             user-select: none; z-index: 10;
-            display: flex; align-items: center; gap: 16px;
+            display: flex; align-items: center; gap: 15px;
+            position: relative;
+            border-bottom: 2px solid var(--gold-light);
         }
 
         .header-logo {
@@ -85,49 +93,59 @@
 
         .header-text { display: flex; flex-direction: column; align-items: flex-start; }
 
-        .header-title { font-size: 1.15rem; font-weight: 600; color: #ffffff; letter-spacing: -0.2px; }
-        .header-subtitle { font-size: 0.75rem; color: #d1fae5; font-weight: 400; margin-top: 3px; }
+        .header-title { font-family: 'Fraunces', serif; font-size: 1.18rem; font-weight: 600; color: #ffffff; letter-spacing: -0.1px; }
+        .header-subtitle {
+            font-size: 0.7rem; color: rgba(255,255,255,0.75); font-weight: 500; margin-top: 4px;
+            text-transform: uppercase; letter-spacing: 0.9px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .header-subtitle .gold-dash { width: 10px; height: 1px; background: var(--gold-light); display: inline-block; }
 
         .chat-messages {
-            flex: 1; padding: 25px; overflow-y: auto; display: flex;
-            flex-direction: column; gap: 18px;
+            flex: 1; padding: 24px; overflow-y: auto; display: flex;
+            flex-direction: column; gap: 16px;
             background-color: var(--chat-messages-bg);
             scroll-behavior: smooth;
         }
 
-        #typing-indicator { display: none; font-size: 0.8rem; color: var(--text-muted); font-style: italic; padding-left: 5px; }
+        /* --- PROFESSIONAL PULSE ANIMATION --- */
+        #typing-indicator { display: none; padding: 8px 20px; }
+        .dot { display: inline-block; width: 6px; height: 6px; background: var(--brand-primary); border-radius: 50%; animation: pulse 1.4s infinite ease-in-out both; margin-right: 3px; }
+        .dot:nth-child(1) { animation-delay: -0.32s; } .dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes pulse { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
         @keyframes messageFadeIn {
-            0% { opacity: 0; transform: translateY(10px); }
+            0% { opacity: 0; transform: translateY(8px); }
             100% { opacity: 1; transform: translateY(0); }
         }
 
         .message {
-            max-width: 82%; padding: 16px 20px; border-radius: 18px;
-            font-size: 0.95rem; line-height: 1.6; word-wrap: break-word;
-            animation: messageFadeIn 0.5s ease forwards;
+            max-width: 82%; padding: 14px 18px; border-radius: 17px;
+            font-size: 0.93rem; line-height: 1.62; word-wrap: break-word;
+            animation: messageFadeIn 0.45s ease forwards;
+            letter-spacing: 0.1px;
         }
 
         .message.bot {
             background-color: #ffffff; color: var(--text-main);
             align-self: flex-start; border-bottom-left-radius: 4px;
-            border: 1px solid rgba(0,0,0,0.03);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            border: 1px solid rgba(15, 23, 42, 0.04);
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
         }
 
         .message.user {
             background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
             color: #ffffff;
             align-self: flex-end; border-bottom-right-radius: 4px;
-            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.15);
+            box-shadow: 0 6px 16px rgba(5, 150, 105, 0.18);
         }
 
-        .suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; animation: messageFadeIn 0.6s ease forwards; }
+        .suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; animation: messageFadeIn 0.55s ease forwards; }
 
         .suggestions button {
             background: #ffffff; color: var(--brand-secondary);
             border: 1px solid #d1fae5; border-radius: 30px;
-            padding: 10px 16px; font-size: 0.85rem; font-weight: 500;
+            padding: 9px 15px; font-size: 0.82rem; font-weight: 500;
             cursor: pointer; transition: all 0.2s ease;
         }
 
@@ -135,114 +153,122 @@
             border-color: var(--brand-primary); color: #ffffff;
             background: var(--brand-primary);
             transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(5, 150, 105, 0.15);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.18);
         }
 
         .lead-form-card, .support-form-card {
-            background: #ffffff; border: 1px solid var(--border-light); border-radius: 16px;
-            padding: 24px; align-self: center; width: 100%; max-width: 360px; margin-top: 5px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.04); animation: messageFadeIn 0.5s ease forwards;
+            background: #ffffff; border: 1px solid var(--border-light); border-radius: 18px;
+            padding: 24px; align-self: center; width: 100%; max-width: 360px; margin-top: 4px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05); animation: messageFadeIn 0.45s ease forwards;
         }
 
         .lead-form-card input, .support-form-card input, .support-form-card textarea {
-            width: 100%; padding: 14px; margin-bottom: 14px;
-            border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem;
-            color: var(--text-main); background-color: #ffffff;
-            transition: all 0.3s; outline: none;
+            width: 100%; padding: 13px 14px; margin-bottom: 12px;
+            border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.9rem;
+            color: var(--text-main); background-color: #fafbfc;
+            transition: all 0.25s; outline: none;
         }
 
         .support-form-card textarea {
-            resize: vertical; min-height: 90px; font-family: 'Inter', sans-serif;
+            resize: vertical; min-height: 86px; font-family: 'Inter', sans-serif;
         }
 
         .lead-form-card input:focus, .support-form-card input:focus, .support-form-card textarea:focus {
-            border-color: var(--brand-accent); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+            border-color: var(--brand-accent); background-color: #ffffff; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
         }
-        .lead-form-card button, .support-form-card button[type="submit"] {
-            width: 100%; padding: 14px;
+        .lead-form-card button[type="submit"], .support-form-card button[type="submit"] {
+            width: 100%; padding: 13px;
             background: var(--brand-primary); color: white;
-            border: none; border-radius: 10px; font-weight: 500; letter-spacing: 0.5px;
-            cursor: pointer; font-size: 1rem; transition: all 0.3s;
+            border: none; border-radius: 10px; font-weight: 500; letter-spacing: 0.4px;
+            cursor: pointer; font-size: 0.95rem; transition: all 0.25s;
         }
-        .lead-form-card button:hover, .support-form-card button[type="submit"]:hover { background: var(--brand-secondary); }
+        .lead-form-card button[type="submit"]:hover, .support-form-card button[type="submit"]:hover {
+            background: var(--brand-secondary); box-shadow: 0 6px 16px rgba(5, 150, 105, 0.22); transform: translateY(-1px);
+        }
 
         .support-form-card .support-card-header {
-            display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
         }
         .support-form-card .support-card-header .icon {
-            font-size: 1.2rem;
+            font-size: 0.95rem; width: 30px; height: 30px; border-radius: 9px;
+            background: var(--gold-bg); border: 1px solid var(--gold-border);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
         .support-form-card .support-card-header h4 {
-            font-size: 1rem; font-weight: 600; color: var(--text-main);
+            font-family: 'Fraunces', serif; font-size: 1.02rem; font-weight: 600; color: var(--text-main);
         }
         .support-form-card .support-card-sub {
-            font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px; margin-top: -10px;
+            font-size: 0.78rem; color: var(--text-muted); margin-bottom: 16px; margin-top: -8px; line-height: 1.5;
         }
 
         .support-cancel-btn {
-            width: 100%; padding: 12px; margin-top: 10px;
+            width: 100%; padding: 11px; margin-top: 8px;
             background: transparent; color: var(--text-muted);
             border: 1px solid #e2e8f0; border-radius: 10px; font-weight: 500;
-            cursor: pointer; font-size: 0.9rem; transition: all 0.2s;
+            cursor: pointer; font-size: 0.88rem; transition: all 0.2s;
         }
-        .support-cancel-btn:hover { background: var(--chat-messages-bg); color: var(--text-main); }
+        .support-cancel-btn:hover { background: var(--chat-messages-bg); color: var(--text-main); border-color: #cbd5e1; }
 
         .chat-input-area {
-            display: flex; padding: 16px 14px; background: #ffffff;
+            display: flex; padding: 15px 14px; background: #ffffff;
             border-top: 1px solid var(--border-light);
             align-items: center; z-index: 20; gap: 0;
         }
 
         .chat-input-area input {
-            flex: 1; min-width: 0; padding: 15px 16px; background-color: var(--chat-messages-bg);
+            flex: 1; min-width: 0; padding: 14px 17px; background-color: var(--chat-messages-bg);
             border: 1px solid transparent; border-radius: 30px;
-            outline: none; font-size: 0.9rem; color: var(--text-main); transition: all 0.3s;
+            outline: none; font-size: 0.88rem; color: var(--text-main); transition: all 0.25s;
         }
+
+        .chat-input-area input::placeholder { color: #9aa6b3; }
 
         .chat-input-area input:focus { background-color: #ffffff; border-color: var(--brand-accent); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
 
         .send-btn {
             background: var(--brand-primary); color: white; border: none;
-            border-radius: 50%; width: 44px; height: 44px; margin-left: 8px;
+            border-radius: 50%; width: 43px; height: 43px; margin-left: 8px;
             cursor: pointer; display: flex; justify-content: center; align-items: center;
             transition: all 0.2s; flex-shrink: 0;
         }
-        .send-btn:hover { background: var(--brand-secondary); transform: scale(1.05); }
-        .send-icon { width: 18px; height: 18px; fill: white; transform: translateX(2px); }
+        .send-btn:hover { background: var(--brand-secondary); transform: scale(1.06); box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25); }
+        .send-icon { width: 17px; height: 17px; fill: white; transform: translateX(2px); }
 
         .support-btn {
-            background-color: transparent; color: var(--brand-primary); border: none;
-            border-radius: 30px; height: 44px; padding: 0 10px; margin-left: 2px;
-            cursor: pointer; font-weight: 500; font-size: 0.8rem; transition: all 0.2s;
+            background-color: transparent; color: var(--gold); border: none;
+            border-radius: 30px; height: 43px; padding: 0 10px; margin-left: 2px;
+            cursor: pointer; font-weight: 500; font-size: 0.78rem; transition: all 0.2s;
             flex-shrink: 0; white-space: nowrap;
         }
-        .support-btn:hover { color: var(--brand-secondary); background-color: #f0fdf4; }
+        .support-btn:hover { color: #8a6516; background-color: var(--gold-bg); }
 
         .end-chat-btn {
-            background-color: transparent; color: #94a3b8; border: none;
-            border-radius: 30px; height: 44px; padding: 0 10px; margin-left: 2px;
-            cursor: pointer; font-weight: 500; font-size: 0.8rem; transition: all 0.2s;
+            background-color: transparent; color: #9aa6b3; border: none;
+            border-radius: 30px; height: 43px; padding: 0 9px; margin-left: 2px;
+            cursor: pointer; font-weight: 500; font-size: 0.78rem; transition: all 0.2s;
             flex-shrink: 0;
         }
         .end-chat-btn:hover { color: #ef4444; background-color: #fef2f2; }
 
         .footer-feedback {
             display: flex; justify-content: center; align-items: center; gap: 14px;
-            padding-top: 20px; margin-top: 10px; border-top: 1px solid var(--border-light);
+            padding-top: 18px; margin-top: 8px; border-top: 1px solid var(--border-light);
         }
-        .footer-feedback span { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+        .footer-feedback span { font-size: 0.83rem; color: var(--text-muted); font-weight: 500; }
         .footer-feedback button {
-            border: none; background: transparent; cursor: pointer; font-size: 22px;
+            border: none; background: transparent; cursor: pointer; font-size: 21px;
             transition: all 0.2s ease; filter: grayscale(100%); opacity: 0.6;
         }
         .footer-feedback button:hover { transform: scale(1.15); filter: grayscale(0%); opacity: 1; }
 
         .chat-footer {
-            background: #ffffff; text-align: center; padding: 10px 0 14px 0;
-            font-size: 0.6rem; color: #cbd5e1; text-transform: uppercase;
+            background: #ffffff; text-align: center; padding: 10px 0 13px 0;
+            font-size: 0.59rem; color: #cbd5e1; text-transform: uppercase;
             letter-spacing: 1.5px; z-index: 20;
+            display: flex; align-items: center; justify-content: center; gap: 7px;
         }
-        .chat-footer span { font-weight: 600; color: #94a3b8; }
+        .chat-footer .divider-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--gold-light); opacity: 0.7; }
+        .chat-footer span.brand { font-weight: 600; color: #94a3b8; }
     </style>
 </head>
 <body>
@@ -250,7 +276,8 @@
 <div class="chat-container {% if minimized %}minimized{% endif %}" id="chatBox" onclick="checkMaximize()">
 
     <div class="top-bar">
-        <span>🔒 End-to-End Encrypted</span>
+        <span class="lock-dot"></span>
+        <span>End-to-End Encrypted</span>
     </div>
 
     <div class="chat-header" id="chatHeader">
@@ -260,7 +287,7 @@
             <img src="{{ url_for('static', filename='JKB.png') }}" alt="JKB Logo" class="header-logo">
             <div class="header-text">
                 <div class="header-title">JKB Financial Services</div>
-                <div class="header-subtitle">Official Virtual Assistant</div>
+                <div class="header-subtitle"><span class="gold-dash"></span>Official Virtual Assistant</div>
             </div>
         {% endif %}
     </div>
@@ -283,7 +310,7 @@
             </div>
         {% endfor %}
 
-        <div id="typing-indicator">JKB Helper is thinking...</div>
+        <div id="typing-indicator"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
 
         {% if show_form %}
             <div class="lead-form-card">
@@ -332,7 +359,9 @@
     </form>
 
     <div class="chat-footer">
-        Powered by <span>STAJLOGIC</span>
+        <span>Powered by</span>
+        <span class="divider-dot"></span>
+        <span class="brand">STAJLOGIC</span>
     </div>
 </div>
 
@@ -347,7 +376,7 @@
         container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
     }
 
-    // Show typing indicator on form submit
+    // Show pulse animation on submit
     form.addEventListener('submit', function() {
         indicator.style.display = 'block';
         container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });

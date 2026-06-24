@@ -17,9 +17,11 @@ CRITICAL RULES:
 4. EXCEPTION TO RULE 3: If the user sends a greeting, you must respond politely and ask how you can help. HOWEVER, do not repeat your introduction if you have already greeted the user in the Previous Conversation history.
 """
 
+def generate_financial_response(user_query, retrieved_documents, chat_history=None):
+    # Fix for mutable default argument
+    if chat_history is None:
+        chat_history = []
 
-# ADD chat_history as a parameter defaulting to an empty list
-def generate_financial_response(user_query, retrieved_documents, chat_history=[]):
     # 1. Format the past messages into a readable chat transcript
     history_transcript = ""
     for msg in chat_history:
@@ -27,19 +29,31 @@ def generate_financial_response(user_query, retrieved_documents, chat_history=[]
         history_transcript += f"{role}: {msg['text']}\n"
 
     # 2. Inject the history into the final prompt sent to the model
-    combined_prompt = f"""
+    # (Combined your two prompt fragments into one clean structure)
+    prompt = f"""
+You are a professional financial assistant for JKB Financial Services.
+
 Previous Conversation:
 {history_transcript}
 
-Current User Question: {user_query}
+User Question:
+{user_query}
 
 Knowledge Base Context:
 {retrieved_documents}
+
+Rules:
+1. Give short and direct answers.
+2. If explaining a process, ALWAYS use numbered steps.
+3. If listing information, ALWAYS use bullet points.
+4. Never return long paragraphs.
+5. Keep URLs unchanged.
+6. Keep responses concise and easy to read.
 """
 
     response = client.models.generate_content(
         model='gemini-2.5-flash',
-        contents=combined_prompt,
+        contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=FINANCIAL_GUARDRAILS,
             temperature=0.8,
